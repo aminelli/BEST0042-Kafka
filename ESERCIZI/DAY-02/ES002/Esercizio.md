@@ -1,3 +1,4 @@
+
 # Esercizio
 
 
@@ -19,6 +20,12 @@
 
 
 ```batch
+
+REM Nota:
+REM Se necessario lanciare il seguente comando adeguando il path alla cartella in cui si è scompattato Kafka
+REM set KAFKA_LOG4J_OPTS=-Dlog4j.configurationFile=file:///D:/Products/Kafka/kafka_2.13-4.2.0/config/log4j2.yaml
+
+
 REM Aprire un nuovo prompt dei comandi,
 REM Posizionarsi sulla folder principale di Kafka
 REM (Ovvero la folder dove si è scompattati il file zip di kafka)
