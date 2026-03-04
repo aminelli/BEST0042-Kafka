@@ -1,10 +1,14 @@
 package com.corso.demo.console;
 
+import com.corso.demo.producers.ProducerSyncFireAndForget;
+
 public final class MenuHelper {
 
         public static void startMenu() {
                 // Crea un'istanza del menu TUI con il titolo dell'applicazione
-                MenuTUI menu = new MenuTUI("Java 21 Course - Menu Principale");
+                MenuTUI menu = new MenuTUI("Kafka Course - Menu Principale");
+
+                addMenuProducerFireAndForget(menu);
 
                 // Aggiunge la voce per uscire dall'applicazione
                 // Quando selezionata, questa voce termina il programma
@@ -14,6 +18,22 @@ public final class MenuHelper {
                 // Il programma rimarrà in esecuzione finché l'utente non seleziona l'opzione di
                 // uscita
                 menu.start();
+        }
+
+        private static void addMenuProducerFireAndForget(MenuTUI menu) {
+                menu.addMenuItem("Producer Fire and Forget", () -> {
+                        // Crea un'istanza del producer e invia i messaggi
+                        ProducerSyncFireAndForget producer = new ProducerSyncFireAndForget();
+                        producer.sendMessages("demo-topic", 1000000);
+
+                        // Attende l'input dell'utente prima di tornare al menu
+                        System.out.println("\nPremi Invio per tornare al menu...");
+                        try {
+                                System.in.read();
+                        } catch (Exception ex) {
+                                // Ignora eventuali errori di input
+                        }
+                });
         }
 
         private static void addMenuItemExit(MenuTUI menu) {
