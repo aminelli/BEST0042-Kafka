@@ -199,7 +199,7 @@ public class MenuTUI {
             }
         } catch (NumberFormatException e) {
             // L'input non è un numero
-            showError("Inserisci un numero valido. Premi INVIO per continuare...");
+            // showError("Inserisci un numero valido. Premi INVIO per continuare...");
         }
     }
     
