@@ -3,6 +3,7 @@ package com.corso.demo.console;
 import com.corso.demo.producers.ProducerSyncAcksAll;
 import com.corso.demo.producers.ProducerSyncAcksOne;
 import com.corso.demo.producers.ProducerSyncFireAndForget;
+import com.corso.demo.producers.ProducerWithPartitioner;
 
 public final class MenuHelper {
 
@@ -13,6 +14,7 @@ public final class MenuHelper {
                 addMenuProducerFireAndForget(menu);
                 addMenuProducerAcksOne(menu);
                 addMenuProducerAcksAll(menu);
+                addMenuProducerWithPartitioner(menu);
 
                 // Aggiunge la voce per uscire dall'applicazione
                 // Quando selezionata, questa voce termina il programma
@@ -56,7 +58,7 @@ public final class MenuHelper {
                 });
         }
 
-         private static void addMenuProducerAcksAll(MenuTUI menu) {
+        private static void addMenuProducerAcksAll(MenuTUI menu) {
                 menu.addMenuItem("Producer Acks All", () -> {
                         // Crea un'istanza del producer e invia i messaggi
                         ProducerSyncAcksAll producer = new ProducerSyncAcksAll();
@@ -64,6 +66,23 @@ public final class MenuHelper {
 
                         // Attende l'input dell'utente prima di tornare al menu
                         System.out.println("\nPremi Invio per tornare al menu...");
+                        try {
+                                System.in.read();
+                        } catch (Exception ex) {
+                                // Ignora eventuali errori di input
+                        }
+                });
+        }
+
+         private static void addMenuProducerWithPartitioner(MenuTUI menu) {
+                menu.addMenuItem("Producer With Partitioner", () -> {
+                        // Crea un'istanza del producer e invia i messaggi
+                        ProducerWithPartitioner producer = new ProducerWithPartitioner();
+                        producer.sendMessages("demo-part", 3000);
+
+                        // Attende l'input dell'utente prima di tornare al menu
+                        System.out.println("\nPremi Invio per tornare al menu...");
+
                         try {
                                 System.in.read();
                         } catch (Exception ex) {

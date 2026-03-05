@@ -1,6 +1,7 @@
 package com.corso.demo.producers;
 
 import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -9,10 +10,16 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-public class ProducerSyncAcksOne extends ProducerBase {
+import com.corso.demo.partitioners.PartitionerCustom;
+
+public class ProducerWithPartitioner extends ProducerBase {
     
 
     public void sendMessages(String topicName, int maxMessages) {
+
+        String[] msgTypes = {"UNKNOW", "JSON", "XML", "CSV"};
+
+        Random random = new Random();
 
         Properties props = new Properties();
 
@@ -20,7 +27,7 @@ public class ProducerSyncAcksOne extends ProducerBase {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
 
         // Client ID
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, "Producer002");
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "Producer004");
 
 
         // Fattore di compressione dei messaggi
@@ -33,6 +40,9 @@ public class ProducerSyncAcksOne extends ProducerBase {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
+        // Partizionatore custom
+        props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerCustom.class.getName());
+
         // Retries
         props.put(ProducerConfig.RETRIES_CONFIG, 3);
 
@@ -42,14 +52,13 @@ public class ProducerSyncAcksOne extends ProducerBase {
             
             
             for (int counter = 0; counter < maxMessages; counter++) {
-                String key ="K" + counter;
-                String value = "Messagio nr " + counter;
+                String key = msgTypes[random.nextInt(msgTypes.length)] + "-" + counter;
+                String value = "Messagio " + key;
                 
                 record = new ProducerRecord<>(topicName, key, value);
                 String headerInfo = "MSG KEY: " + record.key();
                 record.headers().add("headerKey", headerInfo.getBytes());
                 
-
                 try {
                    
                    Future<RecordMetadata> future = producer.send(record);
@@ -69,5 +78,6 @@ public class ProducerSyncAcksOne extends ProducerBase {
         }
 
     }
+
 
 }
