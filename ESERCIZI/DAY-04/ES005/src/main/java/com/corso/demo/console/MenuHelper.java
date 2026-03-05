@@ -1,5 +1,7 @@
 package com.corso.demo.console;
 
+import com.corso.demo.producers.ProducerSyncAcksAll;
+import com.corso.demo.producers.ProducerSyncAcksOne;
 import com.corso.demo.producers.ProducerSyncFireAndForget;
 
 public final class MenuHelper {
@@ -9,6 +11,8 @@ public final class MenuHelper {
                 MenuTUI menu = new MenuTUI("Kafka Course - Menu Principale");
 
                 addMenuProducerFireAndForget(menu);
+                addMenuProducerAcksOne(menu);
+                addMenuProducerAcksAll(menu);
 
                 // Aggiunge la voce per uscire dall'applicazione
                 // Quando selezionata, questa voce termina il programma
@@ -25,6 +29,38 @@ public final class MenuHelper {
                         // Crea un'istanza del producer e invia i messaggi
                         ProducerSyncFireAndForget producer = new ProducerSyncFireAndForget();
                         producer.sendMessages("demo-topic", 1000000);
+
+                        // Attende l'input dell'utente prima di tornare al menu
+                        System.out.println("\nPremi Invio per tornare al menu...");
+                        try {
+                                System.in.read();
+                        } catch (Exception ex) {
+                                // Ignora eventuali errori di input
+                        }
+                });
+        }
+
+        private static void addMenuProducerAcksOne(MenuTUI menu) {
+                menu.addMenuItem("Producer Acks One", () -> {
+                        // Crea un'istanza del producer e invia i messaggi
+                        ProducerSyncAcksOne producer = new ProducerSyncAcksOne();
+                        producer.sendMessages("demo-topic-acks-1", 1000);
+
+                        // Attende l'input dell'utente prima di tornare al menu
+                        System.out.println("\nPremi Invio per tornare al menu...");
+                        try {
+                                System.in.read();
+                        } catch (Exception ex) {
+                                // Ignora eventuali errori di input
+                        }
+                });
+        }
+
+         private static void addMenuProducerAcksAll(MenuTUI menu) {
+                menu.addMenuItem("Producer Acks All", () -> {
+                        // Crea un'istanza del producer e invia i messaggi
+                        ProducerSyncAcksAll producer = new ProducerSyncAcksAll();
+                        producer.sendMessages("demo-topic-corso", 1000);
 
                         // Attende l'input dell'utente prima di tornare al menu
                         System.out.println("\nPremi Invio per tornare al menu...");

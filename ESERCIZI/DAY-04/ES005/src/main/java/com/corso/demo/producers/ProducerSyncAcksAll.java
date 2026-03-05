@@ -1,35 +1,41 @@
 package com.corso.demo.producers;
 
 import java.util.Properties;
+import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.serialization.StringSerializer;
 
-public class ProducerSyncFireAndForget {
+public class ProducerSyncAcksAll extends ProducerBase {
+    
 
     public void sendMessages(String topicName, int maxMessages) {
 
         Properties props = new Properties();
 
         // props.put("bootstrap.servers", "localhost:9092");
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092,localhost:9093,localhost:9094");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
 
         // Client ID
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, "Producer001");
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "Producer002");
 
 
         // Fattore di compressione dei messaggi
         props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip");
 
         // Tipo Acks
-        props.put(ProducerConfig.ACKS_CONFIG, "0");
+        props.put(ProducerConfig.ACKS_CONFIG, "all");
 
         // Namespaces delle CLASSI da utilizzare per la serializzazione di chiave e valore
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
 
         try (final KafkaProducer<String, String> producer = new KafkaProducer<>(props)) {
+           
             ProducerRecord<String, String> record = null;
             
             
@@ -41,9 +47,14 @@ public class ProducerSyncFireAndForget {
                 String headerInfo = "MSG KEY: " + record.key();
                 record.headers().add("headerKey", headerInfo.getBytes());
                 
+
                 try {
-                    producer.send(record);
-                    System.out.println("Inviato messaggio: " + counter);
+                   
+                   Future<RecordMetadata> future = producer.send(record);
+                   RecordMetadata metadata = future.get();
+                   printMetadata(key, metadata);
+
+                    
                 } catch (Exception ex) {
                     System.out.println("Errore durante l'invio del messaggio: " + counter);
                 }
@@ -52,9 +63,9 @@ public class ProducerSyncFireAndForget {
            
             producer.flush();
             producer.close();
-            
+
         }
 
     }
-    
+
 }
