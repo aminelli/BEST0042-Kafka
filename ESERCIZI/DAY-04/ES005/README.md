@@ -37,3 +37,15 @@ docker exec -it kafka01 /opt/kafka/bin/kafka-console-consumer.sh --topic demo-cu
 
 
 ---
+
+docker exec -it kafka01 /opt/kafka/bin/kafka-console-consumer.sh --topic demo-customers-json --from-beginning --bootstrap-server localhost:9092 
+
+docker exec -it kafka01 /opt/kafka/bin/kafka-console-consumer.sh --topic demo-generic-json --from-beginning --bootstrap-server localhost:9092 
+
+   producer.sendMessagesJsonCustomer("demo-customers-json", 3000);
+            producer.sendMessagesJsonGeneric("demo-generic-json", 3000);
+
+
+---
+
+docker exec -it kafka01 /opt/kafka/bin/kafka-console-consumer.sh --topic demo-customers-bytes --from-beginning --bootstrap-server localhost:9092 

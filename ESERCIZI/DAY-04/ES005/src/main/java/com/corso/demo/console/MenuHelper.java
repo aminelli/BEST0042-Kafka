@@ -1,6 +1,7 @@
 package com.corso.demo.console;
 
 import com.corso.demo.producers.ProducerCustomers;
+import com.corso.demo.producers.ProducerCustomersJsonSer;
 import com.corso.demo.producers.ProducerSyncAcksAll;
 import com.corso.demo.producers.ProducerSyncAcksOne;
 import com.corso.demo.producers.ProducerSyncFireAndForget;
@@ -17,6 +18,7 @@ public final class MenuHelper {
         addMenuProducerAcksAll(menu);
         addMenuProducerWithPartitioner(menu);
         addMenuProducerCustomers(menu);
+        addMenuProducerCustomersJsonSer(menu);
 
         // Aggiunge la voce per uscire dall'applicazione
         // Quando selezionata, questa voce termina il programma
@@ -97,7 +99,25 @@ public final class MenuHelper {
         menu.addMenuItem("Producer Customers", () -> {
             // Crea un'istanza del producer e invia i messaggi
             ProducerCustomers producer = new ProducerCustomers();
-            producer.sendMessages("demo-customers", 3000);
+            producer.sendMessages("demo-customers", 10);
+            producer.sendMessagesBytes("demo-customers-bytes", 10);
+            // Attende l'input dell'utente prima di tornare al menu
+            System.out.println("\nPremi Invio per tornare al menu...");
+
+            try {
+                System.in.read();
+            } catch (Exception ex) {
+                // Ignora eventuali errori di input
+            }
+        });
+    }
+
+    private static void addMenuProducerCustomersJsonSer(MenuTUI menu) {
+        menu.addMenuItem("Producer Customers JSON Ser", () -> {
+            // Crea un'istanza del producer e invia i messaggi
+            ProducerCustomersJsonSer producer = new ProducerCustomersJsonSer();
+            producer.sendMessagesJsonCustomer("demo-customers-json", 10);
+            producer.sendMessagesJsonGeneric("demo-generic-json", 10);
 
             // Attende l'input dell'utente prima di tornare al menu
             System.out.println("\nPremi Invio per tornare al menu...");
