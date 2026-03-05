@@ -1,5 +1,6 @@
 package com.corso.demo.console;
 
+import com.corso.demo.consumers.ConsumerGeneric;
 import com.corso.demo.producers.ProducerCustomers;
 import com.corso.demo.producers.ProducerCustomersJsonSer;
 import com.corso.demo.producers.ProducerSyncAcksAll;
@@ -19,7 +20,7 @@ public final class MenuHelper {
         addMenuProducerWithPartitioner(menu);
         addMenuProducerCustomers(menu);
         addMenuProducerCustomersJsonSer(menu);
-
+        addMenuConsumerGeneric(menu);
         // Aggiunge la voce per uscire dall'applicazione
         // Quando selezionata, questa voce termina il programma
         addMenuItemExit(menu);
@@ -118,6 +119,31 @@ public final class MenuHelper {
             ProducerCustomersJsonSer producer = new ProducerCustomersJsonSer();
             producer.sendMessagesJsonCustomer("demo-customers-json", 10);
             producer.sendMessagesJsonGeneric("demo-generic-json", 10);
+
+            // Attende l'input dell'utente prima di tornare al menu
+            System.out.println("\nPremi Invio per tornare al menu...");
+
+            try {
+                System.in.read();
+            } catch (Exception ex) {
+                // Ignora eventuali errori di input
+            }
+        });
+    }
+
+    private static void addMenuConsumerGeneric(MenuTUI menu) {
+        menu.addMenuItem("Generic Consumer", () -> {
+            // Crea un'istanza consumer e riceve i messaggi
+         
+                ConsumerGeneric consumer = new ConsumerGeneric();
+                consumer.loadRecors(
+                    "demo-part",
+                    "generic-consumer-group",
+                    "generic-consumer-1",
+                    org.apache.kafka.common.serialization.StringDeserializer.class,
+                    org.apache.kafka.common.serialization.StringDeserializer.class
+                );
+
 
             // Attende l'input dell'utente prima di tornare al menu
             System.out.println("\nPremi Invio per tornare al menu...");
