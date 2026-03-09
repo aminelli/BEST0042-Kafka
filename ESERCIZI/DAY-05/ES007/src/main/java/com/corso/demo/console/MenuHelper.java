@@ -1,6 +1,7 @@
 package com.corso.demo.console;
 
 import com.corso.demo.consumers.ConsumerGeneric;
+import com.corso.demo.producers.ProducerAsyncAcksAll;
 import com.corso.demo.producers.ProducerCustomers;
 import com.corso.demo.producers.ProducerCustomersJsonSer;
 import com.corso.demo.producers.ProducerSyncAcksAll;
@@ -17,6 +18,7 @@ public final class MenuHelper {
         addMenuProducerFireAndForget(menu);
         addMenuProducerAcksOne(menu);
         addMenuProducerAcksAll(menu);
+        addMenuProducerAcksAllAsync(menu);
         addMenuProducerWithPartitioner(menu);
         addMenuProducerCustomers(menu);
         addMenuProducerCustomersJsonSer(menu);
@@ -68,6 +70,22 @@ public final class MenuHelper {
             // Crea un'istanza del producer e invia i messaggi
             ProducerSyncAcksAll producer = new ProducerSyncAcksAll();
             producer.sendMessages("demo-topic-corso", 1000);
+
+            // Attende l'input dell'utente prima di tornare al menu
+            System.out.println("\nPremi Invio per tornare al menu...");
+            try {
+                System.in.read();
+            } catch (Exception ex) {
+                // Ignora eventuali errori di input
+            }
+        });
+    }
+
+        private static void addMenuProducerAcksAllAsync(MenuTUI menu) {
+        menu.addMenuItem("Producer Acks All Async", () -> {
+            // Crea un'istanza del producer e invia i messaggi
+            ProducerAsyncAcksAll producer = new ProducerAsyncAcksAll();
+            producer.sendMessages("demo-topic-async", 3000);
 
             // Attende l'input dell'utente prima di tornare al menu
             System.out.println("\nPremi Invio per tornare al menu...");
