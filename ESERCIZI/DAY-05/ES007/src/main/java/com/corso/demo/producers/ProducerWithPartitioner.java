@@ -1,0 +1,83 @@
+package com.corso.demo.producers;
+
+import java.util.Properties;
+import java.util.Random;
+import java.util.concurrent.Future;
+
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.serialization.StringSerializer;
+
+import com.corso.demo.partitioners.PartitionerCustom;
+
+public class ProducerWithPartitioner extends ProducerBase {
+    
+
+    public void sendMessages(String topicName, int maxMessages) {
+
+        String[] msgTypes = {"UNKNOW", "JSON", "XML", "CSV"};
+
+        Random random = new Random();
+
+        Properties props = new Properties();
+
+        // props.put("bootstrap.servers", "localhost:9092");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+        // Client ID
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "Producer004");
+
+
+        // Fattore di compressione dei messaggi
+        props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip");
+
+        // Tipo Acks
+        props.put(ProducerConfig.ACKS_CONFIG, "1");
+
+        // Namespaces delle CLASSI da utilizzare per la serializzazione di chiave e valore
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+        // Partizionatore custom
+        props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerCustom.class.getName());
+
+        // Retries
+        props.put(ProducerConfig.RETRIES_CONFIG, 3);
+
+        try (final KafkaProducer<String, String> producer = new KafkaProducer<>(props)) {
+           
+            ProducerRecord<String, String> record = null;
+            
+            
+            for (int counter = 0; counter < maxMessages; counter++) {
+                String key = msgTypes[random.nextInt(msgTypes.length)] + "-" + counter;
+                String value = "Messagio " + key;
+                
+                record = new ProducerRecord<>(topicName, key, value);
+                String headerInfo = "MSG KEY: " + record.key();
+                record.headers().add("headerKey", headerInfo.getBytes());
+                
+                try {
+                   
+                   Future<RecordMetadata> future = producer.send(record);
+                   RecordMetadata metadata = future.get();
+                   printMetadata(key, metadata);
+
+                    
+                } catch (Exception ex) {
+                    System.out.println("Errore durante l'invio del messaggio: " + counter);
+                }
+                
+            }
+           
+            producer.flush();
+            producer.close();
+
+        }
+
+    }
+
+
+}
