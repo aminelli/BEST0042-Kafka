@@ -46,19 +46,23 @@ public class StreamDemo {
     public void runDemo() {
         try {
 
+            System.out.println("Avvio del producer...");
             Thread producerThread = new Thread(this::runProducer, "Producer-Thread");
             producerThread.start();
             Thread.sleep(2000);
 
+            System.out.println("Avvio del consumer...");
             Thread consumerThread = new Thread(this::runConsumer, "Consumer-Thread");
             consumerThread.start();
             Thread.sleep(2000);
 
+            System.out.println("Avvio dello stream processor...");
             Thread streamThread = new Thread(this::runStreamProcessor, "Stream-Thread");
             streamThread.start();
             Thread.sleep(2000);
 
-            System.out.println("=".repeat(50));
+
+            System.out.println("\n\n=".repeat(50));
             System.out.println("Stream Demo avviata con successo!");
             System.out.println("=".repeat(50));
 
@@ -96,22 +100,21 @@ public class StreamDemo {
 
         try {
             producer = new KafkaProducer<>(props);
-            Customer customer = null;
             ProducerRecord<String, String> record = null;
 
             while (running.get()) {
                 String id = faker.idNumber().valid();
                 String key = "K-" + id;
 
-                customer = new Customer(
+                Customer customer = new Customer(
                         id,
                         faker.name().firstName(),
                         faker.name().lastName(),
                         faker.internet().emailAddress(),
-                        faker.number().numberBetween(1, 80)
+                        faker.number().numberBetween(1, 40)
                     );
 
-                String value = customer.toString();
+                String value = customer.toJson();
 
                 record = new ProducerRecord<>(TOPIC_SOURCE, key, value);
                 String headerInfo = "MSG KEY: " + record.key();
@@ -122,7 +125,7 @@ public class StreamDemo {
                         (metadata, exception) -> {
                             if (exception == null) {
                                 int count = producedCount.incrementAndGet();
-                                System.out.println("Messaggio inviato con successo: " + key + " | Totale prodotti: " + count);
+                                System.out.println("Messaggio inviato con successo: " + key + " | age: " + customer.getAge() + " | Totale prodotti: " + count);
                             } else {
                                 System.out.println("Errore durante l'invio del messaggio: " + key);
                             }
@@ -151,7 +154,7 @@ public class StreamDemo {
     private void runConsumer() {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "Consumer Stream Read");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "Consumer-Stream-Group");
         props.put(ConsumerConfig.CLIENT_ID_CONFIG, "CL001");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
@@ -173,8 +176,6 @@ public class StreamDemo {
                 
                 int consumed = consumedCount.incrementAndGet();
 
-                records = consumer.poll(java.time.Duration.ofMillis(500));
-                
                 records = consumer.poll(Duration.ofMillis(100));
 
                 records.forEach(record -> {
@@ -248,7 +249,7 @@ public class StreamDemo {
             // dove ogni record è composto da una chiave e un valore.
             KStream<String, String> inputStream = builder.stream(TOPIC_SOURCE);
 
-            // PIPELINE DI TTRASFORMAZIONE
+            // PIPELINE DI TRASFORMAZIONE
             inputStream
                 // 1. Deserializzazione del valore da JSON a oggetto Customer 
                 .mapValues( json -> {

@@ -8,6 +8,7 @@ import com.corso.demo.producers.ProducerSyncAcksAll;
 import com.corso.demo.producers.ProducerSyncAcksOne;
 import com.corso.demo.producers.ProducerSyncFireAndForget;
 import com.corso.demo.producers.ProducerWithPartitioner;
+import com.corso.demo.streams.StreamDemo;
 
 public final class MenuHelper {
 
@@ -23,6 +24,9 @@ public final class MenuHelper {
         addMenuProducerCustomers(menu);
         addMenuProducerCustomersJsonSer(menu);
         addMenuConsumerGeneric(menu);
+        addMenuKafkaStreamDemo(menu);
+
+        
         // Aggiunge la voce per uscire dall'applicazione
         // Quando selezionata, questa voce termina il programma
         addMenuItemExit(menu);
@@ -81,7 +85,7 @@ public final class MenuHelper {
         });
     }
 
-        private static void addMenuProducerAcksAllAsync(MenuTUI menu) {
+    private static void addMenuProducerAcksAllAsync(MenuTUI menu) {
         menu.addMenuItem("Producer Acks All Async", () -> {
             // Crea un'istanza del producer e invia i messaggi
             ProducerAsyncAcksAll producer = new ProducerAsyncAcksAll();
@@ -152,16 +156,32 @@ public final class MenuHelper {
     private static void addMenuConsumerGeneric(MenuTUI menu) {
         menu.addMenuItem("Generic Consumer", () -> {
             // Crea un'istanza consumer e riceve i messaggi
-         
-                ConsumerGeneric consumer = new ConsumerGeneric();
-                consumer.loadRecors(
+
+            ConsumerGeneric consumer = new ConsumerGeneric();
+            consumer.loadRecors(
                     "demo-part",
                     "generic-consumer-group",
                     "generic-consumer-1",
                     org.apache.kafka.common.serialization.StringDeserializer.class,
-                    org.apache.kafka.common.serialization.StringDeserializer.class
-                );
+                    org.apache.kafka.common.serialization.StringDeserializer.class);
 
+            // Attende l'input dell'utente prima di tornare al menu
+            System.out.println("\nPremi Invio per tornare al menu...");
+
+            try {
+                System.in.read();
+            } catch (Exception ex) {
+                // Ignora eventuali errori di input
+            }
+        });
+    }
+
+    private static void addMenuKafkaStreamDemo(MenuTUI menu) {
+        menu.addMenuItem("Kafka Stream Demo", () -> {
+            // Crea un'istanza consumer e riceve i messaggi
+
+            StreamDemo demo = new StreamDemo();
+            demo.runDemo();
 
             // Attende l'input dell'utente prima di tornare al menu
             System.out.println("\nPremi Invio per tornare al menu...");
