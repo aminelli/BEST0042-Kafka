@@ -1,0 +1,5 @@
+# Created at 2026-03-10T17:32:25.074
+Boot Manifest-JAR contains absolute paths in classpath 'D:\Temp\CORSI\BEST0042-Kafka\ESERCIZI\DAY-06\ES009-Spring\sample-06\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+
