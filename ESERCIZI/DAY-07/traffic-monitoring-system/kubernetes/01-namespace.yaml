@@ -1,0 +1,8 @@
+# Namespace for traffic monitoring system
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: traffic-monitoring
+  labels:
+    app: traffic-monitoring
+    environment: production

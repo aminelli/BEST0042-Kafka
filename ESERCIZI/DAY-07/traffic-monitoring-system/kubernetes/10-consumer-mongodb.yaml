@@ -1,0 +1,61 @@
+# MongoDB Consumer Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer-mongodb
+  namespace: traffic-monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumer-mongodb
+  template:
+    metadata:
+      labels:
+        app: consumer-mongodb
+    spec:
+      containers:
+      - name: consumer-mongodb
+        image: consumer-mongodb:1.0.0  # Replace with your registry/image
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: traffic-monitoring-config
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - pgrep
+            - -f
+            - consumer-mongodb
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - pgrep
+            - -f
+            - consumer-mongodb
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+# Consumer Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: consumer-mongodb
+  namespace: traffic-monitoring
+spec:
+  type: ClusterIP
+  selector:
+    app: consumer-mongodb
+  ports:
+  - port: 8083
+    targetPort: 8083
+    name: metrics

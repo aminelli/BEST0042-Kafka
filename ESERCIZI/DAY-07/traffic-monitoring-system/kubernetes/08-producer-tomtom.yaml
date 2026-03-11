@@ -1,0 +1,63 @@
+# TomTom Producer Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer-tomtom
+  namespace: traffic-monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer-tomtom
+  template:
+    metadata:
+      labels:
+        app: producer-tomtom
+    spec:
+      containers:
+      - name: producer-tomtom
+        image: producer-tomtom:1.0.0  # Replace with your registry/image
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: traffic-monitoring-config
+        - secretRef:
+            name: traffic-monitoring-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - pgrep
+            - -f
+            - producer-tomtom
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - pgrep
+            - -f
+            - producer-tomtom
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+# Producer Service (for monitoring/metrics if needed)
+apiVersion: v1
+kind: Service
+metadata:
+  name: producer-tomtom
+  namespace: traffic-monitoring
+spec:
+  type: ClusterIP
+  selector:
+    app: producer-tomtom
+  ports:
+  - port: 8081
+    targetPort: 8081
+    name: metrics

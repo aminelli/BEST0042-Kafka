@@ -1,0 +1,161 @@
+version: '3.8'
+
+services:
+  # Zookeeper - Required for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    hostname: zookeeper
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - traffic-network
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo 'ruok' | nc localhost 2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Kafka Broker
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    networks:
+      - traffic-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+  # MongoDB
+  mongodb:
+    image: mongo:7.0
+    hostname: mongodb
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_DATABASE: traffic_monitoring
+    ports:
+      - "27017:27017"
+    networks:
+      - traffic-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - mongodb-data:/data/db
+
+  # Kafka UI (optional - for monitoring)
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    networks:
+      - traffic-network
+
+  # TomTom Producer Application
+  producer-tomtom:
+    build:
+      context: ./producer-tomtom
+      dockerfile: Dockerfile
+    container_name: producer-tomtom
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_TRAFFIC_RAW: traffic.raw
+      TOMTOM_API_KEY: ${TOMTOM_API_KEY}
+      POLLING_INTERVAL_SECONDS: 60
+      MIN_LAT: 41.8
+      MIN_LON: 12.4
+      MAX_LAT: 42.0
+      MAX_LON: 12.6
+    networks:
+      - traffic-network
+    restart: unless-stopped
+
+  # Stream Processor Application
+  stream-processor:
+    build:
+      context: ./stream-processor
+      dockerfile: Dockerfile
+    container_name: stream-processor
+    depends_on:
+      kafka:
+        condition: service_healthy
+      producer-tomtom:
+        condition: service_started
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      APPLICATION_ID: traffic-stream-processor
+    networks:
+      - traffic-network
+    restart: unless-stopped
+    volumes:
+      - stream-state:/tmp/kafka-streams
+
+  # MongoDB Consumer Application
+  consumer-mongodb:
+    build:
+      context: ./consumer-mongodb
+      dockerfile: Dockerfile
+    container_name: consumer-mongodb
+    depends_on:
+      kafka:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      stream-processor:
+        condition: service_started
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MONGODB_URI: mongodb://mongodb:27017
+      MONGODB_DATABASE: traffic_monitoring
+      CONSUMER_GROUP_ID: mongodb-consumer-group
+      KAFKA_TOPIC_METRICS: traffic.metrics
+      KAFKA_TOPIC_ALERTS: traffic.alerts
+    networks:
+      - traffic-network
+    restart: unless-stopped
+
+networks:
+  traffic-network:
+    driver: bridge
+
+volumes:
+  kafka-data:
+  mongodb-data:
+  stream-state:

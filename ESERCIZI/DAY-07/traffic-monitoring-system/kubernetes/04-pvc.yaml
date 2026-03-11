@@ -1,0 +1,41 @@
+# PersistentVolumeClaim for Kafka data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kafka-data-pvc
+  namespace: traffic-monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+---
+# PersistentVolumeClaim for MongoDB data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-data-pvc
+  namespace: traffic-monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard
+---
+# PersistentVolumeClaim for Kafka Streams state
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: stream-state-pvc
+  namespace: traffic-monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard

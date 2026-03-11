@@ -1,0 +1,31 @@
+# ConfigMap for application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traffic-monitoring-config
+  namespace: traffic-monitoring
+data:
+  # Kafka configuration
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  
+  # Topic names
+  KAFKA_TOPIC_TRAFFIC_RAW: "traffic.raw"
+  KAFKA_TOPIC_METRICS: "traffic.metrics"
+  KAFKA_TOPIC_ALERTS: "traffic.alerts"
+  
+  # MongoDB configuration
+  MONGODB_URI: "mongodb://mongodb:27017"
+  MONGODB_DATABASE: "traffic_monitoring"
+  
+  # Producer configuration
+  POLLING_INTERVAL_SECONDS: "60"
+  MIN_LAT: "41.8"
+  MIN_LON: "12.4"
+  MAX_LAT: "42.0"
+  MAX_LON: "12.6"
+  
+  # Consumer configuration
+  CONSUMER_GROUP_ID: "mongodb-consumer-group"
+  
+  # Stream processor configuration
+  APPLICATION_ID: "traffic-stream-processor"

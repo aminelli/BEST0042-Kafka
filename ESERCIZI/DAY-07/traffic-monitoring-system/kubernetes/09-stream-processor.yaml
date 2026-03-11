@@ -1,0 +1,68 @@
+# Stream Processor Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stream-processor
+  namespace: traffic-monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stream-processor
+  template:
+    metadata:
+      labels:
+        app: stream-processor
+    spec:
+      containers:
+      - name: stream-processor
+        image: stream-processor:1.0.0  # Replace with your registry/image
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: traffic-monitoring-config
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: stream-state
+          mountPath: /tmp/kafka-streams
+        livenessProbe:
+          exec:
+            command:
+            - pgrep
+            - -f
+            - stream-processor
+          initialDelaySeconds: 90
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - pgrep
+            - -f
+            - stream-processor
+          initialDelaySeconds: 60
+          periodSeconds: 10
+      volumes:
+      - name: stream-state
+        persistentVolumeClaim:
+          claimName: stream-state-pvc
+---
+# Stream Processor Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: stream-processor
+  namespace: traffic-monitoring
+spec:
+  type: ClusterIP
+  selector:
+    app: stream-processor
+  ports:
+  - port: 8082
+    targetPort: 8082
+    name: metrics
