@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug Spark Normalizer",
+            "request": "launch",
+            "mainClass": "com.netmon.spark.TelemetryNormalizer",
+            "projectName": "spark-normalizer",
+            "args": "${workspaceFolder}/../config/spark-normalizer.properties",
+            "vmArgs": "--add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED -Dhadoop.home.dir=${workspaceFolder}/tmp -Djava.io.tmpdir=${workspaceFolder}/tmp -Djava.library.path=${workspaceFolder}/tmp/bin -Dspark.hadoop.fs.file.impl=org.apache.hadoop.fs.RawLocalFileSystem",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PATH": "${workspaceFolder}/tmp/bin;${env:PATH}"
+            }
+        }
+    ]
+}

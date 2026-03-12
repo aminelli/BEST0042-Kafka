@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug Elasticsearch Consumer",
+            "request": "launch",
+            "mainClass": "com.netmon.consumer.ElasticsearchConsumer",
+            "projectName": "elasticsearch-consumer",
+            "args": "${workspaceFolder}/../config/elasticsearch-consumer.properties",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
