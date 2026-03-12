@@ -1,0 +1,148 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - netmon
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    networks:
+      - netmon
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=N6Qs4E7s
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - netmon
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: elastic
+      ELASTICSEARCH_PASSWORD: N6Qs4E7s
+    networks:
+      - netmon
+
+  producer-type-a:
+    build:
+      context: .
+      dockerfile: producer-type-a/Dockerfile
+    container_name: producer-type-a
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+    networks:
+      - netmon
+    restart: unless-stopped
+
+  producer-type-b:
+    build:
+      context: .
+      dockerfile: producer-type-b/Dockerfile
+    container_name: producer-type-b
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+    networks:
+      - netmon
+    restart: unless-stopped
+
+  spark-normalizer:
+    build:
+      context: .
+      dockerfile: spark-normalizer/Dockerfile
+    container_name: spark-normalizer
+    depends_on:
+      - kafka
+      - producer-type-a
+      - producer-type-b
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./checkpoint:/app/checkpoint
+    networks:
+      - netmon
+    restart: unless-stopped
+
+  elasticsearch-consumer:
+    build:
+      context: .
+      dockerfile: elasticsearch-consumer/Dockerfile
+    container_name: elasticsearch-consumer
+    depends_on:
+      - kafka
+      - elasticsearch
+      - spark-normalizer
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: elastic
+      ELASTICSEARCH_PASSWORD: N6Qs4E7s
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+    networks:
+      - netmon
+    restart: unless-stopped
+
+volumes:
+  es_data:
+    driver: local
+
+networks:
+  netmon:
+    driver: bridge
