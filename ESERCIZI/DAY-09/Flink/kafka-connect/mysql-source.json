@@ -1,0 +1,52 @@
+{
+  "name": "mysql-source-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "tasks.max": "1",
+    
+    "_comment_connection": "Configurazione connessione al database MySQL",
+    "database.hostname": "mysql",
+    "database.port": "3306",
+    "database.user": "ecommerce_user",
+    "database.password": "ecommerce_pass",
+    "database.server.id": "184054",
+    "database.server.name": "mysql",
+    
+    "_comment_database": "Database e tabelle da monitorare",
+    "database.include.list": "ecommerce_db",
+    "table.include.list": "ecommerce_db.orders,ecommerce_db.customers,ecommerce_db.products,ecommerce_db.order_items",
+    
+    "_comment_snapshot": "Configurazione snapshot iniziale - 'initial' per leggere tutti i dati esistenti",
+    "snapshot.mode": "initial",
+    
+    "_comment_history": "Topic Kafka per memorizzare lo schema history",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka-1:9092,kafka-2:9092,kafka-3:9092",
+    "schema.history.internal.kafka.topic": "schema-changes.ecommerce",
+    
+    "_comment_format": "Formato dei messaggi e chiavi",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "true",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "true",
+    
+    "_comment_topic": "Naming dei topic Kafka - pattern: server.database.table",
+    "topic.prefix": "mysql",
+    
+    "_comment_binlog": "Configurazione binary log per CDC",
+    "include.schema.changes": "true",
+    "database.history.kafka.bootstrap.servers": "kafka-1:9092,kafka-2:9092,kafka-3:9092",
+    "database.history.kafka.topic": "dbhistory.ecommerce",
+    
+    "_comment_transforms": "Trasformazioni opzionali sui messaggi",
+    "transforms": "route",
+    "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+    "transforms.route.regex": "([^.]+)\\.([^.]+)\\.([^.]+)",
+    "transforms.route.replacement": "$1.$2.$3",
+    
+    "_comment_performance": "Configurazioni per gestione dimensioni messaggi",
+    "max.batch.size": "1000",
+    "max.queue.size": "8192",
+    "poll.interval.ms": "1000",
+    "max.message.size": "104857600"
+  }
+}

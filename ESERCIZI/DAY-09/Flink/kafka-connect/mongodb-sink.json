@@ -1,0 +1,33 @@
+{
+  "name": "mongodb-sink-connector",
+  "config": {
+    "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
+    "tasks.max": "1",
+    
+    "_comment_connection": "Configurazione connessione MongoDB",
+    "connection.uri": "mongodb://admin:adminpassword@mongodb:27017",
+    "database": "ecommerce_analytics",
+    "collection": "order_aggregations",
+    
+    "_comment_topics": "Topic Kafka da cui leggere - questo sarà popolato dal Flink job",
+    "topics": "order-aggregations",
+    
+    "_comment_format": "Formato dei messaggi in ingresso",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    
+    "_comment_write": "Strategia di scrittura",
+    "writemodel.strategy": "com.mongodb.kafka.connect.sink.writemodel.strategy.ReplaceOneDefaultStrategy",
+    
+    "_comment_doc": "Configurazione del documento MongoDB",
+    "document.id.strategy": "com.mongodb.kafka.connect.sink.processor.id.strategy.ProvidedInValueStrategy",
+    "document.id.strategy.overwrite.existing": "true",
+    
+    "_comment_error": "Gestione errori - continua in caso di errore",
+    "errors.tolerance": "all",
+    "errors.log.enable": "true",
+    "errors.log.include.messages": "true"
+  }
+}

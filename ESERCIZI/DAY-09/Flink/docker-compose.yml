@@ -64,7 +64,7 @@ services:
   # MSG BROKER - Kafka Brocker 1
   # ================================================================================
   kafka-1:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.5.3
     container_name: ecommerce-kafka-1
     hostname: kafka-1
     networks:
@@ -116,7 +116,7 @@ services:
   # MSG BROKER - Kafka Brocker 2
   # ================================================================================
   kafka-2:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.5.3
     container_name: ecommerce-kafka-2
     hostname: kafka-2
     networks:
@@ -168,7 +168,7 @@ services:
   # MSG BROKER - Kafka Brocker 2
   # ================================================================================
   kafka-3:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.5.3
     container_name: ecommerce-kafka-3
     hostname: kafka-3
     networks:
@@ -279,3 +279,52 @@ services:
     volumes:
       - flink-chcekpoints:/opt/flink/checkpoints
       - ./flink-job/target:/opt/flink/urllib:ro
+
+  # ================================================================================
+  # Ingestion layer - Kafka Connect con Debezium
+  # ================================================================================
+  kafka-connect:
+    image: debezium/connect:2.5
+    container_name: ecommerce-kafka-connect
+    hostname: kafka-connect
+    networks:
+      - ecommerce-network
+    ports:
+      - "8083:8083"
+    environment:
+      environment:
+      BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
+      GROUP_ID: "connect-cluster"
+      CONFIG_STORAGE_TOPIC: "connect-configs"
+      OFFSET_STORAGE_TOPIC: "connect-offsets"
+      STATUS_STORAGE_TOPIC: "connect-status"
+      CONFIG_STORAGE_REPLICATION_FACTOR: 2
+      OFFSET_STORAGE_REPLICATION_FACTOR: 2
+      STATUS_STORAGE_REPLICATION_FACTOR: 2
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "true"
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
+    volumes:
+      - ./kafka-connect/config:/kafka/connect/config:ro
+  
+  # ================================================================================
+  # Ingestion layer - Kafka Connect con Debezium
+  # ================================================================================
+  data-generator:
+    build:
+      context: ./python-generator
+      dockerfile: Dockerfile
+    container_name: ecommerce-data-generator
+    hostname: data-generator  
+    networks:
+      - ecommerce-network
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: ${MYSQL_USER:-ecommerce_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ecommerce_pass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ecommerce_db}
+      GENERATOR_BATCH_SIZE: ${GENERATOR_BATCH_SIZE:-10}
+      GENERATOR_INTERVAL_SECONDS: ${GENERATOR_INTERVAL_SECONDS:-5}
+      GENERATOR_MAX_ORDERS: ${GENERATOR_MAX_ORDERS:-5000}
