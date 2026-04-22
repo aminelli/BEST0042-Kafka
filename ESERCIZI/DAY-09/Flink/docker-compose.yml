@@ -59,3 +59,223 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-adminpassword}
       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-ecommerce_analytics}
+
+  # ================================================================================
+  # MSG BROKER - Kafka Brocker 1
+  # ================================================================================
+  kafka-1:
+    image: confluentinc/cp-kafka:latest
+    container_name: ecommerce-kafka-1
+    hostname: kafka-1
+    networks:
+      - ecommerce-network
+    ports:
+      - "9092:9092"
+      - "19092:19092"
+    environment:
+      # KRaft Mode Configuration
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:19092,2@kafka-2:19092,3@kafka-3:19092'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      
+      # Listeners Configuration
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-1:9092,CONTROLLER://kafka-1:19092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-1:9092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+
+      # Cluster Configuration
+      CLUSTER_ID: ${KAFKA_CLUSTER_ID:-rMZ6Y9KYQv2Iylr7UM18rA}
+
+      # Replication and Durability
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+
+      # Topic and Log Configuration
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+
+       # Message Size Limits
+      KAFKA_MESSAGE_MAX_BYTES: 209715200
+      KAFKA_REPLICA_FETCH_MAX_BYTES: 209715200
+      KAFKA_MAX_REQUEST_SIZE: 209715200
+      KAFKA_SOCKET_REQUEST_MAX_BYTES: 209715200
+
+      # Log Directories
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+
+    volumes:
+      - kafka-1-data:/var/lib/kafka/data
+
+  # ================================================================================
+  # MSG BROKER - Kafka Brocker 2
+  # ================================================================================
+  kafka-2:
+    image: confluentinc/cp-kafka:latest
+    container_name: ecommerce-kafka-2
+    hostname: kafka-2
+    networks:
+      - ecommerce-network
+    ports:
+      - "9093:9092"
+      - "19093:19092"
+    environment:
+      # KRaft Mode Configuration
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:19092,2@kafka-2:19092,3@kafka-3:19092'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      
+      # Listeners Configuration
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-1:9092,CONTROLLER://kafka-1:19092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-1:9092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+
+      # Cluster Configuration
+      CLUSTER_ID: ${KAFKA_CLUSTER_ID:-rMZ6Y9KYQv2Iylr7UM18rA}
+
+      # Replication and Durability
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+
+      # Topic and Log Configuration
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+
+       # Message Size Limits
+      KAFKA_MESSAGE_MAX_BYTES: 209715200
+      KAFKA_REPLICA_FETCH_MAX_BYTES: 209715200
+      KAFKA_MAX_REQUEST_SIZE: 209715200
+      KAFKA_SOCKET_REQUEST_MAX_BYTES: 209715200
+
+      # Log Directories
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+      
+    volumes:
+      - kafka-2-data:/var/lib/kafka/data
+  
+  # ================================================================================
+  # MSG BROKER - Kafka Brocker 2
+  # ================================================================================
+  kafka-3:
+    image: confluentinc/cp-kafka:latest
+    container_name: ecommerce-kafka-3
+    hostname: kafka-3
+    networks:
+      - ecommerce-network
+    ports:
+      - "9094:9092"
+      - "19094:19092"
+    environment:
+      # KRaft Mode Configuration
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:19092,2@kafka-2:19092,3@kafka-3:19092'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      
+      # Listeners Configuration
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-3:9092,CONTROLLER://kafka-3:19092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-3:9092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+
+      # Cluster Configuration
+      CLUSTER_ID: ${KAFKA_CLUSTER_ID:-rMZ6Y9KYQv2Iylr7UM18rA}
+
+      # Replication and Durability
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+
+      # Topic and Log Configuration
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+
+       # Message Size Limits
+      KAFKA_MESSAGE_MAX_BYTES: 209715200
+      KAFKA_REPLICA_FETCH_MAX_BYTES: 209715200
+      KAFKA_MAX_REQUEST_SIZE: 209715200
+      KAFKA_SOCKET_REQUEST_MAX_BYTES: 209715200
+
+      # Log Directories
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+      
+    volumes:
+      - kafka-2-data:/var/lib/kafka/data
+  
+  # ================================================================================
+  # Kafka-UI - UI x Kafka
+  # ================================================================================
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: ecommerce-kafka-ui
+    hostname: kafka-ui
+    networks:
+      - ecommerce-network
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: ecommerce-kafka-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
+      KAFKA_CLUSTERS_0_METRICS_PORT: 9092
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: debezium-connect
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
+
+  # ================================================================================
+  # Stream Processing - Flink JobManager
+  # ================================================================================
+  flink-jobmanager:
+    image: flink:1.19-java17
+    container_name: ecommerce-flink-jobmanager
+    hostname: flink-jobmanager
+    networks:
+      - ecommerce-network
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        jobmanager.memory.process.size: 1600m
+        state.backend: filesystem
+        state.checkpoints.dir: file:///tmp/flink-checkpoints
+        state.savepoints.dir: file:///tmp/flink-savepoints
+        execution.checkpointing.interval: 60000
+    volumes:
+      - flink-chcekpoints:/opt/flink/checkpoints
+      - ./flink-job/target:/opt/flink/urllib:ro
+
+  # ================================================================================
+  # Stream Processing - Flink TaskManager
+  # ================================================================================
+  flink-taskmanager:
+    image: flink:1.19-java17
+    container_name: ecommerce-flink-taskmanager
+    hostname: flink-taskmanager
+    networks:
+      - ecommerce-network
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        taskmanager.memory.process.size: 1728m
+    volumes:
+      - flink-chcekpoints:/opt/flink/checkpoints
+      - ./flink-job/target:/opt/flink/urllib:ro
