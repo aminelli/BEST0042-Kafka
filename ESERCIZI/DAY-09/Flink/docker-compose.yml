@@ -35,11 +35,7 @@ services:
       - mysql-data:/var/lib/mysql
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
-    # healthcheck:
-    #   test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
+    
 
   # ================================================================================
   # DATABASE DI SINK - Mongo Db

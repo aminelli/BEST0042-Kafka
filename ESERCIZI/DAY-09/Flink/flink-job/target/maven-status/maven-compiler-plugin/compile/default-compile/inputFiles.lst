@@ -1,0 +1,5 @@
+D:\Temp\CORSI\BEST0042-Kafka\ESERCIZI\DAY-09\Flink\flink-job\src\main\java\com\ecommerce\streaming\JsonParser.java
+D:\Temp\CORSI\BEST0042-Kafka\ESERCIZI\DAY-09\Flink\flink-job\src\main\java\com\ecommerce\streaming\OrderAggregation.java
+D:\Temp\CORSI\BEST0042-Kafka\ESERCIZI\DAY-09\Flink\flink-job\src\main\java\com\ecommerce\streaming\DebeziumCdcEvent.java
+D:\Temp\CORSI\BEST0042-Kafka\ESERCIZI\DAY-09\Flink\flink-job\src\main\java\com\ecommerce\streaming\MongoDBSink.java
+D:\Temp\CORSI\BEST0042-Kafka\ESERCIZI\DAY-09\Flink\flink-job\src\main\java\com\ecommerce\streaming\EcommerceStreamProcessor.java

@@ -1,0 +1,9 @@
+com\ecommerce\streaming\DebeziumCdcEvent$OrderData.class
+com\ecommerce\streaming\DebeziumCdcEvent$Source.class
+com\ecommerce\streaming\MongoDBSink.class
+com\ecommerce\streaming\EcommerceStreamProcessor$OrderAggregateFunction.class
+com\ecommerce\streaming\DebeziumCdcEvent.class
+com\ecommerce\streaming\DebeziumCdcEvent$Payload.class
+com\ecommerce\streaming\OrderAggregation.class
+com\ecommerce\streaming\JsonParser.class
+com\ecommerce\streaming\EcommerceStreamProcessor.class
