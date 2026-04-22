@@ -1,0 +1,61 @@
+
+networks:
+  ecommerce-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  mongodb-data:
+  kafka-1-data:
+  kafka-2-data:
+  kafka-3-data:
+  flink-chcekpoints:
+
+
+services:
+
+  # ================================================================================
+  # DATABASE DI ORIGINE - Mysql
+  # ================================================================================
+  
+  mysql:
+    image: mysql:8.0
+    container_name: ecommerce-mysql
+    hostname: mysql
+    networks:
+      - ecommerce-network
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ecommerce_db}
+      MYSQL_USER: ${MYSQL_USER:-ecommerce_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ecommerce_pass}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+    # healthcheck:
+    #   test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+
+  # ================================================================================
+  # DATABASE DI SINK - Mongo Db
+  # ================================================================================
+  mongodb:
+    image: mongo:latest
+    container_name: ecommerce-mongodb
+    hostname: mongodb
+    networks:
+      - ecommerce-network
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+      - ./mongodb/init.js:/docker-entrypoint-initdb.d/init.js:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-adminpassword}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-ecommerce_analytics}
