@@ -80,37 +80,36 @@ services:
       KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-1:9092'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
-
+      
       # Cluster Configuration
-      CLUSTER_ID: ${KAFKA_CLUSTER_ID:-rMZ6Y9KYQv2Iylr7UM18rA}
-
+      CLUSTER_ID: '${KAFKA_CLUSTER_ID:-rMZ6Y9KYQv2Iylr7UM18rA}'
+      
       # Replication and Durability
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_DEFAULT_REPLICATION_FACTOR: 2
       KAFKA_MIN_INSYNC_REPLICAS: 1
-
+      
       # Topic and Log Configuration
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_LOG_RETENTION_HOURS: 168
       KAFKA_LOG_SEGMENT_BYTES: 1073741824
-
-       # Message Size Limits
+      
+      # Message Size Limits
       KAFKA_MESSAGE_MAX_BYTES: 209715200
       KAFKA_REPLICA_FETCH_MAX_BYTES: 209715200
       KAFKA_MAX_REQUEST_SIZE: 209715200
       KAFKA_SOCKET_REQUEST_MAX_BYTES: 209715200
-
+      
       # Log Directories
       KAFKA_LOG_DIRS: '/var/lib/kafka/data'
-
     volumes:
       - kafka-1-data:/var/lib/kafka/data
 
-  # ================================================================================
-  # MSG BROKER - Kafka Brocker 2
-  # ================================================================================
+  # ============================================================================
+  # MESSAGE BROKER - Kafka Broker 2 (KRaft Mode - Combined Broker+Controller)
+  # ============================================================================
   kafka-2:
     image: confluentinc/cp-kafka:7.5.3
     container_name: ecommerce-kafka-2
@@ -122,47 +121,46 @@ services:
       - "19093:19092"
     environment:
       # KRaft Mode Configuration
-      KAFKA_NODE_ID: 1
+      KAFKA_NODE_ID: 2
       KAFKA_PROCESS_ROLES: 'broker,controller'
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:19092,2@kafka-2:19092,3@kafka-3:19092'
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       
       # Listeners Configuration
-      KAFKA_LISTENERS: 'PLAINTEXT://kafka-1:9092,CONTROLLER://kafka-1:19092'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-1:9092'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-2:9092,CONTROLLER://kafka-2:19092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-2:9092'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
-
+      
       # Cluster Configuration
-      CLUSTER_ID: ${KAFKA_CLUSTER_ID:-rMZ6Y9KYQv2Iylr7UM18rA}
-
+      CLUSTER_ID: '${KAFKA_CLUSTER_ID:-rMZ6Y9KYQv2Iylr7UM18rA}'
+      
       # Replication and Durability
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_DEFAULT_REPLICATION_FACTOR: 2
       KAFKA_MIN_INSYNC_REPLICAS: 1
-
+      
       # Topic and Log Configuration
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_LOG_RETENTION_HOURS: 168
       KAFKA_LOG_SEGMENT_BYTES: 1073741824
-
-       # Message Size Limits
+      
+      # Message Size Limits
       KAFKA_MESSAGE_MAX_BYTES: 209715200
       KAFKA_REPLICA_FETCH_MAX_BYTES: 209715200
       KAFKA_MAX_REQUEST_SIZE: 209715200
       KAFKA_SOCKET_REQUEST_MAX_BYTES: 209715200
-
+      
       # Log Directories
       KAFKA_LOG_DIRS: '/var/lib/kafka/data'
-      
     volumes:
       - kafka-2-data:/var/lib/kafka/data
-  
-  # ================================================================================
-  # MSG BROKER - Kafka Brocker 2
-  # ================================================================================
+
+  # ============================================================================
+  # MESSAGE BROKER - Kafka Broker 3 (KRaft Mode - Combined Broker+Controller)
+  # ============================================================================
   kafka-3:
     image: confluentinc/cp-kafka:7.5.3
     container_name: ecommerce-kafka-3
@@ -174,7 +172,7 @@ services:
       - "19094:19092"
     environment:
       # KRaft Mode Configuration
-      KAFKA_NODE_ID: 1
+      KAFKA_NODE_ID: 3
       KAFKA_PROCESS_ROLES: 'broker,controller'
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:19092,2@kafka-2:19092,3@kafka-3:19092'
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
@@ -184,33 +182,32 @@ services:
       KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-3:9092'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
-
+      
       # Cluster Configuration
-      CLUSTER_ID: ${KAFKA_CLUSTER_ID:-rMZ6Y9KYQv2Iylr7UM18rA}
-
+      CLUSTER_ID: '${KAFKA_CLUSTER_ID:-rMZ6Y9KYQv2Iylr7UM18rA}'
+      
       # Replication and Durability
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_DEFAULT_REPLICATION_FACTOR: 2
       KAFKA_MIN_INSYNC_REPLICAS: 1
-
+      
       # Topic and Log Configuration
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_LOG_RETENTION_HOURS: 168
       KAFKA_LOG_SEGMENT_BYTES: 1073741824
-
-       # Message Size Limits
+      
+      # Message Size Limits
       KAFKA_MESSAGE_MAX_BYTES: 209715200
       KAFKA_REPLICA_FETCH_MAX_BYTES: 209715200
       KAFKA_MAX_REQUEST_SIZE: 209715200
       KAFKA_SOCKET_REQUEST_MAX_BYTES: 209715200
-
+      
       # Log Directories
       KAFKA_LOG_DIRS: '/var/lib/kafka/data'
-      
     volumes:
-      - kafka-2-data:/var/lib/kafka/data
+      - kafka-3-data:/var/lib/kafka/data
   
   # ================================================================================
   # Kafka-UI - UI x Kafka
